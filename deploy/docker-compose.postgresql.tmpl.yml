@@ -8,8 +8,6 @@ services:
       - POSTGRES_PASSWORD
       - POSTGRES_USER
       - PGDATA
-      - POSTGRES_EXPORTER_USER
-      - POSTGRES_EXPORTER_PASSWORD
     networks:
       blog-medioambiente-net:
         aliases:
@@ -36,7 +34,7 @@ services:
 
 networks:
   blog-medioambiente-net:
-    name: ${POSTGRES_BLOG_MEDIOAMBIENTE_NET_NAME:-postgres-blog-medioambiente-net}
+    name: ${BLOG_MEDIOAMBIENTE_NET_NAME:-blog-medioambiente-net}
     driver: overlay
     attachable: ${POSTGRES_NET_ATTACHABLE:-true}
   traefik-net:
