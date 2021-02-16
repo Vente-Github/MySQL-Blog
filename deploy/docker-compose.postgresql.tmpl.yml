@@ -1,0 +1,48 @@
+version: '3.7'
+
+services:
+  postgresql:
+    image: ${IMAGE_NAME:-postgres}:${IMAGE_TAG:-latest}
+    environment:
+      - POSTGRES_DB
+      - POSTGRES_PASSWORD
+      - POSTGRES_USER
+      - PGDATA
+      - POSTGRES_EXPORTER_USER
+      - POSTGRES_EXPORTER_PASSWORD
+    networks:
+      blog-medioambiente-net:
+        aliases:
+          - blog-medioambiente-db
+      traefik-net:
+    volumes:
+      - postgres-blog-medioambiente-vol:/var/lib/postgresql/data
+    healthcheck:
+      test: pg_isready -U ${POSTGRES_USER}
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    deploy:
+      mode: replicated
+      replicas: ${REPLICAS:-1}
+      restart_policy:
+        delay: ${RESTART_DELAY:-0s}
+      update_config:
+        delay: ${UPDATE_DELAY:-1m}
+      labels:
+        traefik.enable: 'true'
+        traefik.tcp.routers.postgresql-blog-medioambiente.service: postgresql-blog-medioambiente
+        traefik.tcp.services.postgresql-blog-medioambiente.loadbalancer.server.port: ${POSTGRES_PORT}
+
+networks:
+  blog-medioambiente-net:
+    name: ${POSTGRES_BLOG_MEDIOAMBIENTE_NET_NAME:-postgres-blog-medioambiente-net}
+    driver: overlay
+    attachable: ${POSTGRES_NET_ATTACHABLE:-true}
+  traefik-net:
+    name: ${TRAEFIK_NET_NAME:-traefik-net}
+    external: true
+
+volumes:
+  postgres-blog-medioambiente-vol:
+    name: ${POSTGRES_DATA_VOLUME_NAME:-postgres-blog-medioambiente-vol}

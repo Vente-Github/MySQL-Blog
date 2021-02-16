@@ -1,0 +1,48 @@
+version: '3.7'
+
+services:
+  backup-db:
+    image: ${IMAGE_NAME:-registry.gitlab.com/cabildo-tf/vente/database/backup-db/dev}:${IMAGE_TAG:-latest}
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_HOSTNAME
+      - PUSHGATEWAY_HOST
+      - PUSHGATEWAY_JOB
+    networks:
+      - postgres-vente-net
+      - monitoring-net
+    volumes:
+      - postgres-vente-backup-vol:/backups
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+        delay: 1m
+        window: 3m
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
+        reservations:
+          memory: 410M
+
+networks:
+  monitoring-net:
+    name: ${MONITORING_NET_NAME:-monitoring-net}
+    driver: ${MONITORING_NET_DRIVER:-overlay}
+    external: true
+  
+  postgres-vente-net:
+    name: ${POSTGRES_VENTE_NET_NAME:-postgres-vente-net}
+    driver: overlay
+    external: true
+
+volumes:
+  postgres-vente-backup-vol:
+    name: ${POSTGRES_VENTE_BACKUP_VOLUME_NAME:-postgres-vente-backup-vol}
+    driver_opts:
+      type: ${NFS_VOL_TYPE}
+      o: ${NFS_VOL_OPTIONS}
+      device: ${NFS_VOL_POSTGRES_BACKUP_VENTE_DEVICE}
