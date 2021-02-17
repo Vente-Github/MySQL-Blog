@@ -1,22 +1,22 @@
 version: '3.7'
 
 services:
-  postgresql:
-    image: ${IMAGE_NAME:-postgres}:${IMAGE_TAG:-latest}
+  mysql:
+    image: ${IMAGE_NAME:-mysql}:${IMAGE_TAG:-latest}
     environment:
-      - POSTGRES_DB
-      - POSTGRES_PASSWORD
-      - POSTGRES_USER
-      - PGDATA
+      - MYSQL_ROOT_PASSWORD
+      - MYSQL_DATABASE
+      - MYSQL_PASSWORD
+      - MYSQL_USER
     networks:
       blog-medioambiente-net:
         aliases:
           - blog-medioambiente-db
       traefik-net:
     volumes:
-      - postgres-blog-medioambiente-vol:/var/lib/postgresql/data
+      - mysql-blog-medioambiente-vol:/var/lib/mysql
     healthcheck:
-      test: pg_isready -U ${POSTGRES_USER}
+      test: mysqladmin ping --silent
       interval: 10s
       timeout: 5s
       retries: 5
@@ -29,18 +29,18 @@ services:
         delay: ${UPDATE_DELAY:-1m}
       labels:
         traefik.enable: 'true'
-        traefik.tcp.routers.postgresql-blog-medioambiente.service: postgresql-blog-medioambiente
-        traefik.tcp.services.postgresql-blog-medioambiente.loadbalancer.server.port: ${POSTGRES_PORT}
+        traefik.tcp.routers.mysql-blog-medioambiente.service: mysql-blog-medioambiente
+        traefik.tcp.services.mysql-blog-medioambiente.loadbalancer.server.port: ${MYSQL_PORT}
 
 networks:
   blog-medioambiente-net:
     name: ${BLOG_MEDIOAMBIENTE_NET_NAME:-blog-medioambiente-net}
     driver: overlay
-    attachable: ${POSTGRES_NET_ATTACHABLE:-true}
+    attachable: ${MYSQL_NET_ATTACHABLE:-true}
   traefik-net:
     name: ${TRAEFIK_NET_NAME:-traefik-net}
     external: true
 
 volumes:
-  postgres-blog-medioambiente-vol:
-    name: ${POSTGRES_DATA_VOLUME_NAME:-postgres-blog-medioambiente-vol}
+  mysql-blog-medioambiente-vol:
+    name: ${MYSQL_DATA_VOLUME_NAME:-mysql-blog-medioambiente-vol}
