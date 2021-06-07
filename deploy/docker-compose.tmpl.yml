@@ -28,9 +28,7 @@ services:
       update_config:
         delay: ${UPDATE_DELAY:-1m}
       labels:
-        traefik.enable: 'true'
-        traefik.tcp.routers.mysql-blog-medioambiente.service: mysql-blog-medioambiente
-        traefik.tcp.services.mysql-blog-medioambiente.loadbalancer.server.port: ${MYSQL_PORT}
+        traefik.enable: 'false'
 
 networks:
   blog-medioambiente-net:
