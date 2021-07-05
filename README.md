@@ -1,2 +1,2 @@
-# Postgresql
+# MySQL - Blog
 

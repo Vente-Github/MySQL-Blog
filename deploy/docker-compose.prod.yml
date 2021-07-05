@@ -1,0 +1,17 @@
+version: '3.7'
+
+services:
+  mysql:
+    deploy:
+      mode: replicated
+      replicas: 1
+      restart_policy:
+        delay: 1m
+        window: 3m
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '0.01'
+          memory: 512M
